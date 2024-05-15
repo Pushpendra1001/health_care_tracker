@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 List<Map<String, dynamic>> doctorsData = [
@@ -308,3 +309,14 @@ List<int> randomNumbers = [
   5,
   8,
 ];
+
+void uploadData(List<Map<String, dynamic>> doctorsData) {
+  final database = FirebaseDatabase.instance;
+  final ref = database.reference().child('doctors');
+
+  doctorsData.forEach((doctor) {
+    ref.child('doctor_${doctor['id']}').set({
+      'doctorDetails': doctor['doctorDetails'],
+    });
+  });
+}

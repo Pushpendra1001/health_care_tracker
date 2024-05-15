@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:health_care/firebase_options.dart';
+import 'package:health_care/pages/ClientSection/login/signupScreen.dart';
+import 'package:health_care/pages/DoctorSection/doctorhomepage.dart';
 import 'package:health_care/pages/loginPages/loginPage.dart';
 
 void main() async {

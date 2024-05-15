@@ -1,10 +1,14 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:health_care/pages/ClientSection/login/signupScreen.dart';
-import 'package:health_care/pages/ClientSection/mainScreens/bottomBar.dart';
-
+import 'package:health_care/pages/ClientSection/mainScreens/HomeScreen.dart';
+import 'package:health_care/pages/DoctorSection/DoctorHomePage.dart';
 import 'package:toast/toast.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -17,6 +21,19 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
+
+  Future<String> getUserRole(String uid) async {
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(uid);
+    final snapshot = await userDoc.get();
+
+    if (snapshot.exists) {
+      final userData = snapshot.data();
+      if (userData != null && userData.containsKey('role')) {
+        return userData['role'];
+      }
+    }
+    return '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,12 +115,28 @@ class _SignInScreenState extends State<SignInScreen> {
 
                       User? user = userCredential.user;
                       print('Signed in: ${user!.uid}');
-                      Navigator.push(
+
+                      String userRole = await getUserRole(user.uid);
+
+                      if (userRole == "doctor") {
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const BottomBar()));
+                            builder: (context) => const DoctorHomePage(),
+                          ),
+                        );
+                      } else if (userRole == "patient") {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomePage(),
+                          ),
+                        );
+                      } else {
+                        print("invalid user role");
+                      }
                     } catch (e) {
-                      Toast.show('Credentials Not Match');
+                      print("failed to sign in");
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -130,10 +163,11 @@ class _SignInScreenState extends State<SignInScreen> {
                 child: TextButton(
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SignUpScreen(),
-                        ));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SignUpScreen(),
+                      ),
+                    );
                   },
                   child: const Text(
                     "Create Account",

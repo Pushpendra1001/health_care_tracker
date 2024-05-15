@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:health_care/pages/ClientSection/common/shedule_screen.dart';
+import 'package:health_care/pages/ClientSection/common/shedule_slot.dart';
 
 class DoctorProfile extends StatelessWidget {
   const DoctorProfile({super.key, required this.DoctorDetails});
@@ -56,23 +57,6 @@ class DoctorProfile extends StatelessWidget {
                             const Spacer(),
                             Text(
                               DoctorDetails["Age"].toString(),
-                              style: const TextStyle(fontSize: 20),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            const Text(
-                              "Contact: ",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 20),
-                            ),
-                            const Spacer(),
-                            Text(
-                              DoctorDetails["PhoneNo"].toString(),
                               style: const TextStyle(fontSize: 20),
                             )
                           ],
@@ -147,7 +131,7 @@ class DoctorProfile extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SheduleScreen(),
+                            builder: (context) => const shedule_slot(),
                           ));
                     },
                     child: const Text("Book Your Slot"),

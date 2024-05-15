@@ -59,8 +59,8 @@ class _SheduleScreenState extends State<SheduleScreen> {
                   onPressed: () async {
                     DateTime? DatePicked = await showDatePicker(
                       context: context,
-                      initialDate: DateTime(2023, 10, 20),
-                      firstDate: DateTime(2022),
+                      initialDate: DateTime(2023, 5, 13),
+                      firstDate: DateTime(2023),
                       lastDate: DateTime(2024),
                     );
                     if (DatePicked != null) {
@@ -108,10 +108,11 @@ class _SheduleScreenState extends State<SheduleScreen> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text("Book Now")))
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Book Now"),
+                  ))
             ],
           ),
         ),

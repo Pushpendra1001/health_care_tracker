@@ -1,8 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:health_care/pages/ClientSection/common/imagePicker.dart';
 import 'package:health_care/pages/loginPages/loginPage.dart';
+import 'package:image_picker/image_picker.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -16,6 +22,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final Name = TextEditingController();
   final _password = TextEditingController();
   final Otp = TextEditingController();
+
+  final _nameController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _experienceController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _doctorSpecialization = TextEditingController();
+  final _doctorCharge = TextEditingController();
+  String role = 'patient';
+
+  final ImagePicker _picker = ImagePicker();
+
+  void saveUserToFirebase(User user) async {
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    await users.doc(user.uid).set({
+      'username': _username.text,
+      'name': Name.text,
+      'role': role,
+      'doctorAge': _ageController.text,
+      'doctorExperience': _experienceController.text,
+      'doctorDescription': _descriptionController.text,
+      "doctorSpecialization": _doctorSpecialization.text,
+      "doctorCharge": _doctorCharge.text,
+    });
+  }
 
   void showEmailNotExistSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -81,9 +111,70 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(
                   height: 15,
                 ),
-                const SizedBox(
-                  height: 15,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: DropdownButtonFormField(
+                    value: role,
+                    items: ['patient', 'doctor'].map((String role) {
+                      return DropdownMenuItem(value: role, child: Text(role));
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        role = value!;
+                      });
+                    },
+                  ),
                 ),
+                SizedBox(
+                  height: 20,
+                ),
+                if (role == 'doctor') ...[
+                  SizedBox(
+                    height: 20,
+                  ),
+                  login_field(
+                    controller: _ageController,
+                    hint_text: "What's Your Age ",
+                    obscuretext: false,
+                    SendButton: false,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  login_field(
+                    controller: _doctorSpecialization,
+                    hint_text: "What is Your Specialization ",
+                    obscuretext: false,
+                    SendButton: false,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  login_field(
+                    controller: _experienceController,
+                    hint_text: "Tell Me your Experience",
+                    obscuretext: false,
+                    SendButton: false,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  login_field(
+                    controller: _descriptionController,
+                    hint_text: "Give Your Description ",
+                    obscuretext: false,
+                    SendButton: false,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  login_field(
+                    controller: _doctorCharge,
+                    hint_text: "What is your P/hr charge",
+                    obscuretext: false,
+                    SendButton: false,
+                  ),
+                ],
                 const SizedBox(
                   height: 20,
                 ),
@@ -110,6 +201,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             email: _username.text,
                             password: _password.text,
                           );
+
+                          User? user = userCredential.user;
+                          print('Signed in: ${user!.uid}');
+                          print("Starting !!!!!!!!");
+
+                          saveUserToFirebase(user);
+                          print("yeh save data to firebase !!!!!!!!");
+
                           showEmailNotExistSnackBar(
                               context, "Account Created successfully");
 

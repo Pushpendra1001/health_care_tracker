@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:health_care/data/dart.dart';
@@ -11,6 +12,31 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var phoneheight = MediaQuery.of(context).size.height;
     var phonewidth = MediaQuery.of(context).size.width;
+
+    Future<List<Map<String, dynamic>>> fetchDoctorsData() async {
+      final ref = FirebaseDatabase.instance.ref('doctors');
+      final snapshot = await ref.get();
+
+      if (snapshot.exists) {
+        return snapshot.children.map((child) {
+          if (child.value is Map) {
+            final doctorData = Map<String, dynamic>.from(
+                child.child('doctorDetails').value as Map);
+
+            return {
+              'doctorId': child.key,
+              'doctorDetails': doctorData,
+            };
+          } else {
+            throw Exception('Invalid data format');
+          }
+        }).toList();
+      } else {
+        throw Exception('No data available');
+      }
+    }
+
+    Future<List<Map<String, dynamic>>> doctorsDataFuture = fetchDoctorsData();
 
     return Scaffold(
       body: SafeArea(
@@ -35,7 +61,9 @@ class HomePage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(7)),
                         child: CircleAvatar(
                           child: IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
                               icon: const Icon(
                                 Icons.sunny,
                               )),
@@ -51,7 +79,7 @@ class HomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Good Evening ,",
+                      "Good Morning,",
                       style: GoogleFonts.gabriela(
                           fontSize: 25, fontWeight: FontWeight.w100),
                     ),
@@ -161,7 +189,7 @@ class HomePage extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Text("Top Doctors in Jaipur",
+                        child: Text("Top Doctors",
                             style: GoogleFonts.inconsolata(fontSize: 20)),
                       ),
                       const Text(
@@ -179,68 +207,91 @@ class HomePage extends StatelessWidget {
                   child: Column(
                     children: [
                       Expanded(
-                        child: ListView.builder(
-                          itemCount: 3,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Colors.grey[300],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: ListTile(
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DoctorProfile(
-                                                          DoctorDetails:
-                                                              doctorsData[index]
-                                                                  [
-                                                                  "doctorDetails"]),
-                                                ));
-                                          },
-                                          title: Text(doctorsData[index]
-                                              ["doctorDetails"]["Name"]),
-                                          leading: CircleAvatar(
-                                              radius: 32,
-                                              backgroundImage: NetworkImage(
-                                                  doctorsData[index]
-                                                              ["doctorDetails"]
-                                                          ["UrlImage"]
-                                                      .toString())),
-                                          subtitle: Text(doctorsData[index]
-                                                  ["doctorDetails"]
-                                              ["Specialization"]),
-                                          trailing: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceAround,
-                                              children: [
-                                                const Text(
-                                                  "View More",
-                                                  style: TextStyle(
-                                                      color: Colors.blue,
-                                                      fontSize: 12),
+                        child: FutureBuilder(
+                          future: doctorsDataFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              final doctorsData = snapshot.data!;
+                              return ListView.builder(
+                                itemCount: doctorsData.length,
+                                // Inside your ListView.builder
+                                itemBuilder: (context, index) {
+                                  final doctorData =
+                                      doctorsData[index]['doctorDetails'];
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.grey[300],
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: ListTile(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          DoctorProfile(
+                                                        DoctorDetails:
+                                                            doctorData,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                title: Text(
+                                                    doctorData["Name"] ??
+                                                        'Unknown'),
+                                                leading: CircleAvatar(
+                                                  radius: 32,
+                                                  backgroundImage: NetworkImage(
+                                                    doctorData["UrlImage"]
+                                                            ?.toString() ??
+                                                        '',
+                                                  ),
                                                 ),
-                                                Text(
-                                                    "₹ ${doctorsData[index]["doctorDetails"]["Charge"].toString()}")
-                                              ]),
+                                                subtitle: Text(doctorData[
+                                                        "Specialization"] ??
+                                                    'Unknown'),
+                                                trailing: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  children: [
+                                                    const Text(
+                                                      "View More",
+                                                      style: TextStyle(
+                                                        color: Colors.blue,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      "${doctorData["Charge"]?.toString() ?? 'Unknown'}",
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
+                                    ),
+                                  );
+                                },
+                              );
+                            }
                           },
                         ),
                       )
