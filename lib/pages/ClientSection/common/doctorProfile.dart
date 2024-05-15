@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:health_care/pages/ClientSection/common/shedule_screen.dart';
 import 'package:health_care/pages/ClientSection/common/shedule_slot.dart';
 
 class DoctorProfile extends StatelessWidget {

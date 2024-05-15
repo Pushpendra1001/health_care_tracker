@@ -51,7 +51,7 @@ class _shedule_slotState extends State<shedule_slot> {
       'time': _selectedTime?.format(context),
       'userId': _userId,
       'isUrgent': _isUrgent,
-      'status': 'pending', // New field
+      'status': 'pending',
     }).then((value) {
       print("Appointment saved");
     }).catchError((error) {
