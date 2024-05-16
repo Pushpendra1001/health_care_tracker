@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:health_care/data/dart.dart';
-import 'package:health_care/pages/ClientSection/common/doctorProfile.dart';
 
 class DoctorMyAppointmentScreen extends StatelessWidget {
   const DoctorMyAppointmentScreen({super.key});
@@ -27,8 +25,8 @@ class DoctorMyAppointmentScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     color: Colors.grey[300],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
                     child: Text("No Appointments"),
                   ),
                 ),

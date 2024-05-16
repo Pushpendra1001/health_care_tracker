@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,6 +14,18 @@ class HomePage extends StatelessWidget {
     var phoneheight = MediaQuery.of(context).size.height;
     var phonewidth = MediaQuery.of(context).size.width;
 
+    String getGreetingMessage() {
+      var hour = DateTime.now().hour;
+
+      if (hour < 12) {
+        return 'Good Morning,';
+      }
+      if (hour < 17) {
+        return 'Good Afternoon,';
+      }
+      return 'Good Evening,';
+    }
+
     Future<List<Map<String, dynamic>>> fetchDoctorsData() async {
       final ref = FirebaseDatabase.instance.ref('doctors');
       final snapshot = await ref.get();
@@ -22,7 +35,6 @@ class HomePage extends StatelessWidget {
           if (child.value is Map) {
             final doctorData = Map<String, dynamic>.from(
                 child.child('doctorDetails').value as Map);
-
             return {
               'doctorId': child.key,
               'doctorDetails': doctorData,
@@ -56,19 +68,6 @@ class HomePage extends StatelessWidget {
                         backgroundImage: NetworkImage(
                             "https://th.bing.com/th/id/R.7d1eeb9a0b22fbbb9c99dbfbdad26915?rik=pC4tuK%2bF6V8Eag&riu=http%3a%2f%2fwww.newdesignfile.com%2fpostpic%2f2009%2f03%2fuser-icon_88182.png&ehk=t1ne3u3qnvYkCzMjziNf4os8ystdCogSWqUfBluXwA8%3d&risl=&pid=ImgRaw&r=0"),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(7)),
-                        child: CircleAvatar(
-                          child: IconButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              icon: const Icon(
-                                Icons.sunny,
-                              )),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -79,7 +78,7 @@ class HomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Good Morning,",
+                      getGreetingMessage(),
                       style: GoogleFonts.gabriela(
                           fontSize: 25, fontWeight: FontWeight.w100),
                     ),
@@ -207,8 +206,11 @@ class HomePage extends StatelessWidget {
                   child: Column(
                     children: [
                       Expanded(
-                        child: FutureBuilder(
-                          future: doctorsDataFuture,
+                        child: FutureBuilder<QuerySnapshot>(
+                          future: FirebaseFirestore.instance
+                              .collection('users')
+                              .where('role', isEqualTo: 'doctor')
+                              .get(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -217,13 +219,18 @@ class HomePage extends StatelessWidget {
                             } else if (snapshot.hasError) {
                               return Text('Error: ${snapshot.error}');
                             } else {
-                              final doctorsData = snapshot.data!;
+                              final doctorsData = snapshot.data!.docs;
+
+                              if (doctorsData.isEmpty) {
+                                return Text('No doctors available');
+                              }
+
                               return ListView.builder(
                                 itemCount: doctorsData.length,
-                                // Inside your ListView.builder
                                 itemBuilder: (context, index) {
-                                  final doctorData =
-                                      doctorsData[index]['doctorDetails'];
+                                  final doctorData = doctorsData[index].data()
+                                      as Map<String, dynamic>;
+
                                   return Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Container(
@@ -250,7 +257,7 @@ class HomePage extends StatelessWidget {
                                                   );
                                                 },
                                                 title: Text(
-                                                    doctorData["Name"] ??
+                                                    doctorData["name"] ??
                                                         'Unknown'),
                                                 leading: CircleAvatar(
                                                   radius: 32,
@@ -261,7 +268,7 @@ class HomePage extends StatelessWidget {
                                                   ),
                                                 ),
                                                 subtitle: Text(doctorData[
-                                                        "Specialization"] ??
+                                                        "doctorSpecialization"] ??
                                                     'Unknown'),
                                                 trailing: Column(
                                                   crossAxisAlignment:
@@ -278,7 +285,7 @@ class HomePage extends StatelessWidget {
                                                       ),
                                                     ),
                                                     Text(
-                                                      "${doctorData["Charge"]?.toString() ?? 'Unknown'}",
+                                                      "${doctorData["doctorCharge"]?.toString() ?? 'Unknown'}",
                                                     ),
                                                   ],
                                                 ),

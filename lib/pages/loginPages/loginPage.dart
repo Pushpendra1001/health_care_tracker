@@ -2,14 +2,12 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:health_care/pages/ClientSection/login/signupScreen.dart';
 import 'package:health_care/pages/ClientSection/mainScreens/HomeScreen.dart';
 import 'package:health_care/pages/DoctorSection/DoctorHomePage.dart';
-import 'package:toast/toast.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -35,10 +33,17 @@ class _SignInScreenState extends State<SignInScreen> {
     return '';
   }
 
+  void showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var phoneHeight = MediaQuery.of(context).size.height;
-    var phoneWidth = MediaQuery.of(context).size.width;
     return Center(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -117,7 +122,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       print('Signed in: ${user!.uid}');
 
                       String userRole = await getUserRole(user.uid);
-
+                      showSnackBar(context, "Login Successful");
                       if (userRole == "doctor") {
                         Navigator.pushReplacement(
                           context,
@@ -133,10 +138,10 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                         );
                       } else {
-                        print("invalid user role");
+                        showSnackBar(context, "Invalid role");
                       }
                     } catch (e) {
-                      print("failed to sign in");
+                      showSnackBar(context, "Error : ${e}");
                     }
                   },
                   style: ElevatedButton.styleFrom(
