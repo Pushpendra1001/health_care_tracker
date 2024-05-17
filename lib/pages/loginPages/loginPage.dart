@@ -14,6 +14,8 @@ class SignInScreen extends StatefulWidget {
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
+
+  getUserRole(String s) {}
 }
 
 class _SignInScreenState extends State<SignInScreen> {
@@ -27,6 +29,9 @@ class _SignInScreenState extends State<SignInScreen> {
     if (snapshot.exists) {
       final userData = snapshot.data();
       if (userData != null && userData.containsKey('role')) {
+        print(
+          "Sucessfull Login",
+        );
         return userData['role'];
       }
     }

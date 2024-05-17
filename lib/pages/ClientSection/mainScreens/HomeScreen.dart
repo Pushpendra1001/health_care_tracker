@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:health_care/data/dart.dart';
 import 'package:health_care/pages/ClientSection/common/doctorProfile.dart';
 import 'package:health_care/pages/ClientSection/mainScreens/SearchScreen.dart';
+import 'package:health_care/pages/loginPages/loginPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -68,6 +70,16 @@ class HomePage extends StatelessWidget {
                         backgroundImage: NetworkImage(
                             "https://th.bing.com/th/id/R.7d1eeb9a0b22fbbb9c99dbfbdad26915?rik=pC4tuK%2bF6V8Eag&riu=http%3a%2f%2fwww.newdesignfile.com%2fpostpic%2f2009%2f03%2fuser-icon_88182.png&ehk=t1ne3u3qnvYkCzMjziNf4os8ystdCogSWqUfBluXwA8%3d&risl=&pid=ImgRaw&r=0"),
                       ),
+                      InkWell(
+                          onTap: () {
+                            FirebaseAuth.instance.signOut();
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SignInScreen(),
+                                ));
+                          },
+                          child: Icon(Icons.logout))
                     ],
                   ),
                 ),

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:health_care/pages/DoctorSection/accept_decline.dart';
 import 'package:health_care/pages/DoctorSection/myappointments.dart';
+import 'package:health_care/pages/loginPages/loginPage.dart';
 
 class DoctorHomePage extends StatefulWidget {
   const DoctorHomePage({Key? key}) : super(key: key);
@@ -30,6 +31,18 @@ class _DoctorHomePageState extends State<DoctorHomePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SignInScreen(),
+                    ));
+              },
+              icon: Icon(Icons.logout))
+        ],
       ),
       body: IndexedStack(
         index: _currentIndex,

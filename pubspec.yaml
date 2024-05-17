@@ -44,6 +44,7 @@ dependencies:
   firebase_auth_rest: ^2.0.4
   image_picker: ^1.1.1
   shared_preferences: ^2.2.3
+  mockito: ^5.4.4
 
 dev_dependencies:
   flutter_test:
